@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ApiResponse } from '../types';
 
 const BASE_URL = __DEV__
-  ? 'http://localhost:3000/api/v1'
+  ? 'http://192.168.0.195:3000/api/v1'
   : 'https://api.poroma.app/api/v1';
 
 class ApiClient {
