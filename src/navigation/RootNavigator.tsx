@@ -1,24 +1,37 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useAuth } from '../hooks/useAuth';
-import { AuthNavigator } from './AuthNavigator';
-import { MainNavigator } from './MainNavigator';
-import { RootStackParamList } from './types';
+import SplashScreen from '../components/SplashScreen';
+import { useAuthStore } from '../stores/authStore';
+import AuthNavigator from './AuthNavigator';
+import MainNavigator from './MainNavigator';
 import { Loading } from '../components/common/Loading';
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
+const Stack = createNativeStackNavigator();
 
-const COLORS = {
-  white: '#FFFFFF',
-  primary: '#2196F3',
-};
+export default function RootNavigator() {
+  const [showSplash, setShowSplash] = useState(true);
+  const { isAuthenticated, isInitialized } = useAuthStore();
 
-export const RootNavigator: React.FC = () => {
-  const { isAuthenticated, isInitialized } = useAuth();
+  const handleSplashFinish = () => {
+    setShowSplash(false);
+  };
+
+  if (showSplash) {
+    return (
+      <View style={styles.container}>
+        <SplashScreen onFinish={handleSplashFinish} />
+      </View>
+    );
+  }
 
   if (!isInitialized) {
-    return <Loading size="large" color={COLORS.primary} />;
+    return (
+      <View style={styles.container}>
+        <Loading size="large" color="#002c28" />
+      </View>
+    );
   }
 
   return (
@@ -32,6 +45,10 @@ export const RootNavigator: React.FC = () => {
       </Stack.Navigator>
     </NavigationContainer>
   );
-};
+}
 
-export default RootNavigator;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});

@@ -7,9 +7,9 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#2196F3"
+      "backgroundColor": "#002c28"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -21,7 +21,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#2196F3"
+        "backgroundColor": "#002c28"
       },
       "package": "app.poroma"
     },
