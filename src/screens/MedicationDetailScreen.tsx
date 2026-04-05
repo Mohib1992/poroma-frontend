@@ -8,10 +8,10 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useMedications } from '../hooks/useMedications';
-import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { Loading } from '../components/common/Loading';
 import { MainStackParamList } from '../navigation/types';
@@ -27,18 +27,30 @@ type MedicationDetailScreenRouteProp = RouteProp<
 >;
 
 const COLORS = {
-  primary: '#2196F3',
-  success: '#4CAF50',
-  successLight: '#E8F5E9',
-  warning: '#FF9800',
-  warningLight: '#FFF3E0',
-  error: '#F44336',
-  errorLight: '#FFEBEE',
-  black: '#212121',
-  gray: '#757575',
-  lightGray: '#BDBDBD',
-  background: '#F5F5F5',
-  white: '#FFFFFF',
+  primary: '#002c28',
+  primaryContainer: '#00443e',
+  secondary: '#056a62',
+  secondaryContainer: '#9eeee4',
+  surface: '#f8faf8',
+  surfaceContainerLow: '#f2f4f2',
+  surfaceContainerLowest: '#ffffff',
+  surfaceContainerHigh: '#e7e8e7',
+  onSurface: '#191c1b',
+  onSurfaceVariant: '#404947',
+  onPrimary: '#ffffff',
+  onSecondary: '#ffffff',
+  onSecondaryContainer: '#106e66',
+  primaryFixed: '#b4eee5',
+  outline: '#707977',
+  outlineVariant: '#c0c8c6',
+  background: '#f8faf8',
+  error: '#ba1a1a',
+  errorContainer: '#ffdad6',
+  warning: '#ff9800',
+  warningLight: '#fff3e0',
+  success: '#4caf50',
+  successLight: '#e8f5e9',
+  white: '#ffffff',
 };
 
 const frequencyLabels: Record<string, string> = {
@@ -153,7 +165,30 @@ export const MedicationDetailScreen: React.FC = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <Card style={styles.mainCard}>
+        {/* Header with back button */}
+        <View style={styles.topBar}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <MaterialCommunityIcons
+              name="arrow-left"
+              size={24}
+              color={COLORS.primary}
+            />
+          </TouchableOpacity>
+          <Text style={styles.topBarTitle}>Medication Details</Text>
+          <TouchableOpacity style={styles.editButton}>
+            <MaterialCommunityIcons
+              name="pencil"
+              size={22}
+              color={COLORS.primary}
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* Main Info Card */}
+        <View style={styles.mainCard}>
           <View style={styles.header}>
             <View style={styles.titleContainer}>
               <Text style={styles.name}>{medication.name}</Text>
@@ -182,24 +217,35 @@ export const MedicationDetailScreen: React.FC = () => {
             </View>
           </View>
 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Dosage</Text>
-            <Text style={styles.sectionValue}>{medication.dosage}</Text>
+          <View style={styles.dosageCard}>
+            <MaterialCommunityIcons
+              name="pill"
+              size={32}
+              color={COLORS.secondary}
+            />
+            <Text style={styles.dosageText}>{medication.dosage}</Text>
           </View>
 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Frequency</Text>
-            <Text style={styles.sectionValue}>
+          <View style={styles.divider} />
+
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>FREQUENCY</Text>
+            <Text style={styles.detailValue}>
               {frequencyLabels[medication.frequency] || medication.frequency}
             </Text>
           </View>
 
           {medication.times.length > 0 && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Reminder Times</Text>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>REMINDER TIMES</Text>
               <View style={styles.timesContainer}>
                 {medication.times.map((time, index) => (
                   <View key={index} style={styles.timeBadge}>
+                    <MaterialCommunityIcons
+                      name="clock-outline"
+                      size={14}
+                      color={COLORS.secondary}
+                    />
                     <Text style={styles.timeText}>{time}</Text>
                   </View>
                 ))}
@@ -207,26 +253,27 @@ export const MedicationDetailScreen: React.FC = () => {
             </View>
           )}
 
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Start Date</Text>
-            <Text style={styles.sectionValue}>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>START DATE</Text>
+            <Text style={styles.detailValue}>
               {formatDate(medication.start_date)}
             </Text>
           </View>
 
           {medication.notes && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Notes</Text>
+            <View style={styles.notesSection}>
+              <Text style={styles.detailLabel}>NOTES</Text>
               <Text style={styles.notesText}>{medication.notes}</Text>
             </View>
           )}
-        </Card>
+        </View>
 
+        {/* Stock Card */}
         {medication.stock_count !== undefined && (
-          <Card style={styles.stockCard}>
+          <View style={styles.stockCard}>
             <View style={styles.stockHeader}>
-              <View>
-                <Text style={styles.sectionTitle}>Current Stock</Text>
+              <View style={styles.stockInfo}>
+                <Text style={styles.stockLabel}>CURRENT STOCK</Text>
                 <Text
                   style={[
                     styles.stockValue,
@@ -243,22 +290,26 @@ export const MedicationDetailScreen: React.FC = () => {
               )}
             </View>
 
-            <View style={styles.stockActions}>
-              <TouchableOpacity
-                style={styles.updateStockButton}
-                onPress={() => {
-                  setStockInput(medication.stock_count?.toString() || '0');
-                  setStockModalVisible(true);
-                }}
-              >
-                <Text style={styles.updateStockText}>Update Stock</Text>
-              </TouchableOpacity>
-            </View>
-          </Card>
+            <TouchableOpacity
+              style={styles.updateStockButton}
+              onPress={() => {
+                setStockInput(medication.stock_count?.toString() || '0');
+                setStockModalVisible(true);
+              }}
+            >
+              <MaterialCommunityIcons
+                name="plus"
+                size={20}
+                color={COLORS.secondary}
+              />
+              <Text style={styles.updateStockText}>Update Stock</Text>
+            </TouchableOpacity>
+          </View>
         )}
 
+        {/* Stock Modal */}
         {stockModalVisible && (
-          <Card style={styles.stockModal}>
+          <View style={styles.stockModal}>
             <Text style={styles.modalTitle}>Update Stock</Text>
             <View style={styles.stockInputContainer}>
               <TouchableOpacity
@@ -286,39 +337,65 @@ export const MedicationDetailScreen: React.FC = () => {
             <View style={styles.modalActions}>
               <Button
                 title="Cancel"
-                variant="outline"
                 onPress={() => {
                   setStockModalVisible(false);
                   setStockInput('');
                 }}
-                style={styles.modalButton}
+                style={styles.cancelButton}
               />
               <Button
                 title="Save"
                 onPress={handleUpdateStock}
                 loading={isLoading}
-                style={styles.modalButton}
+                style={styles.saveButton}
               />
             </View>
-          </Card>
+          </View>
         )}
 
+        {/* Action Buttons */}
         <View style={styles.actionsSection}>
-          <Button
-            title={medication.is_active ? 'Deactivate' : 'Activate'}
-            variant={medication.is_active ? 'outline' : 'primary'}
+          <TouchableOpacity
+            style={[
+              styles.actionButton,
+              medication.is_active
+                ? styles.deactivateButton
+                : styles.activateButton,
+            ]}
             onPress={handleToggleActive}
-            fullWidth
-            style={styles.actionButton}
-          />
+          >
+            <MaterialCommunityIcons
+              name={medication.is_active ? 'pause-circle' : 'play-circle'}
+              size={22}
+              color={
+                medication.is_active
+                  ? COLORS.onSurfaceVariant
+                  : COLORS.onPrimary
+              }
+            />
+            <Text
+              style={[
+                styles.actionButtonText,
+                medication.is_active
+                  ? styles.deactivateButtonText
+                  : styles.activateButtonText,
+              ]}
+            >
+              {medication.is_active ? 'Deactivate' : 'Activate'}
+            </Text>
+          </TouchableOpacity>
 
-          <Button
-            title="Delete Medication"
-            variant="text"
+          <TouchableOpacity
+            style={styles.deleteButton}
             onPress={handleDelete}
-            fullWidth
-            textStyle={styles.deleteButtonText}
-          />
+          >
+            <MaterialCommunityIcons
+              name="delete-outline"
+              size={22}
+              color={COLORS.error}
+            />
+            <Text style={styles.deleteButtonText}>Delete Medication</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -334,12 +411,46 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    padding: 16,
     paddingBottom: 40,
   },
+  topBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: COLORS.surface,
+  },
+  backButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  topBarTitle: {
+    fontFamily: 'Manrope',
+    fontSize: 18,
+    fontWeight: '700',
+    color: COLORS.primary,
+  },
+  editButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   mainCard: {
-    padding: 20,
-    marginBottom: 16,
+    margin: 24,
+    backgroundColor: COLORS.surfaceContainerLowest,
+    borderRadius: 28,
+    padding: 24,
+    shadowColor: COLORS.onSurface,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.06,
+    shadowRadius: 32,
+    elevation: 4,
   },
   header: {
     flexDirection: 'row',
@@ -351,50 +462,78 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   name: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: COLORS.black,
+    fontFamily: 'Manrope',
+    fontSize: 28,
+    fontWeight: '800',
+    color: COLORS.primary,
+    letterSpacing: -0.5,
   },
   nameBn: {
+    fontFamily: 'Inter',
     fontSize: 16,
-    color: COLORS.gray,
+    color: COLORS.onSurfaceVariant,
     marginTop: 4,
   },
   statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
   },
   activeBadge: {
     backgroundColor: COLORS.successLight,
   },
   inactiveBadge: {
-    backgroundColor: '#F0F0F0',
+    backgroundColor: COLORS.surfaceContainerHigh,
   },
   statusText: {
+    fontFamily: 'Inter',
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   activeStatusText: {
     color: COLORS.success,
   },
   inactiveStatusText: {
-    color: COLORS.gray,
+    color: COLORS.onSurfaceVariant,
   },
-  section: {
-    marginBottom: 16,
+  dosageCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.secondaryContainer,
+    borderRadius: 16,
+    padding: 16,
+    gap: 12,
+    marginBottom: 20,
   },
-  sectionTitle: {
+  dosageText: {
+    fontFamily: 'Manrope',
+    fontSize: 18,
+    fontWeight: '700',
+    color: COLORS.primary,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: COLORS.surfaceContainerLow,
+    marginBottom: 20,
+  },
+  detailRow: {
+    marginBottom: 20,
+  },
+  detailLabel: {
+    fontFamily: 'Inter',
     fontSize: 12,
-    fontWeight: '600',
-    color: COLORS.gray,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 4,
+    fontWeight: '700',
+    color: COLORS.onSurfaceVariant,
+    letterSpacing: 1,
+    marginBottom: 8,
   },
-  sectionValue: {
+  detailValue: {
+    fontFamily: 'Inter',
     fontSize: 16,
-    color: COLORS.black,
+    fontWeight: '500',
+    color: COLORS.onSurface,
   },
   timesContainer: {
     flexDirection: 'row',
@@ -402,24 +541,40 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   timeBadge: {
-    backgroundColor: COLORS.primaryLight,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.surfaceContainerLow,
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
+    paddingVertical: 8,
+    borderRadius: 12,
+    gap: 6,
   },
   timeText: {
+    fontFamily: 'Inter',
     fontSize: 14,
-    color: COLORS.primary,
     fontWeight: '500',
+    color: COLORS.secondary,
+  },
+  notesSection: {
+    marginTop: 8,
   },
   notesText: {
+    fontFamily: 'Inter',
     fontSize: 14,
-    color: COLORS.gray,
-    lineHeight: 20,
+    color: COLORS.onSurfaceVariant,
+    lineHeight: 22,
+    marginTop: 4,
   },
   stockCard: {
+    marginHorizontal: 24,
+    backgroundColor: COLORS.surfaceContainerLowest,
+    borderRadius: 24,
     padding: 20,
-    marginBottom: 16,
+    shadowColor: COLORS.onSurface,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.06,
+    shadowRadius: 32,
+    elevation: 4,
   },
   stockHeader: {
     flexDirection: 'row',
@@ -427,10 +582,19 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: 16,
   },
+  stockInfo: {},
+  stockLabel: {
+    fontFamily: 'Inter',
+    fontSize: 12,
+    fontWeight: '700',
+    color: COLORS.onSurfaceVariant,
+    letterSpacing: 1,
+  },
   stockValue: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: COLORS.black,
+    fontFamily: 'Manrope',
+    fontSize: 20,
+    fontWeight: '700',
+    color: COLORS.onSurface,
     marginTop: 4,
   },
   lowStockText: {
@@ -438,82 +602,140 @@ const styles = StyleSheet.create({
   },
   refillBadge: {
     backgroundColor: COLORS.warningLight,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
   },
   refillBadgeText: {
+    fontFamily: 'Inter',
     fontSize: 12,
+    fontWeight: '700',
     color: COLORS.warning,
-    fontWeight: '600',
-  },
-  stockActions: {
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   updateStockButton: {
-    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 14,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.surfaceContainerLow,
   },
   updateStockText: {
+    fontFamily: 'Inter',
     fontSize: 14,
-    color: COLORS.primary,
     fontWeight: '600',
+    color: COLORS.secondary,
   },
   stockModal: {
-    padding: 20,
-    marginBottom: 16,
+    marginHorizontal: 24,
+    backgroundColor: COLORS.surfaceContainerLowest,
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: COLORS.onSurface,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.06,
+    shadowRadius: 32,
+    elevation: 4,
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: COLORS.black,
-    marginBottom: 16,
+    fontFamily: 'Manrope',
+    fontSize: 20,
+    fontWeight: '700',
+    color: COLORS.onSurface,
     textAlign: 'center',
+    marginBottom: 24,
   },
   stockInputContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 24,
   },
   stockAdjustButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: COLORS.background,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: COLORS.surfaceContainerLow,
     justifyContent: 'center',
     alignItems: 'center',
   },
   stockAdjustText: {
-    fontSize: 24,
-    color: COLORS.primary,
+    fontFamily: 'Manrope',
+    fontSize: 28,
     fontWeight: '600',
+    color: COLORS.secondary,
   },
   stockInput: {
-    width: 80,
+    width: 100,
     alignItems: 'center',
     marginHorizontal: 20,
   },
   stockInputText: {
-    fontSize: 32,
+    fontFamily: 'Manrope',
+    fontSize: 40,
     fontWeight: '700',
-    color: COLORS.black,
+    color: COLORS.onSurface,
   },
   modalActions: {
     flexDirection: 'row',
     gap: 12,
   },
-  modalButton: {
+  cancelButton: {
     flex: 1,
+    backgroundColor: COLORS.surfaceContainerLow,
+  },
+  saveButton: {
+    flex: 1,
+    backgroundColor: COLORS.primary,
   },
   actionsSection: {
-    marginTop: 8,
+    marginHorizontal: 24,
+    marginTop: 24,
+    gap: 12,
   },
   actionButton: {
-    marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 16,
+    borderRadius: 28,
+  },
+  activateButton: {
+    backgroundColor: COLORS.primary,
+  },
+  deactivateButton: {
+    backgroundColor: COLORS.surfaceContainerHigh,
+    borderWidth: 1,
+    borderColor: COLORS.outlineVariant,
+  },
+  actionButtonText: {
+    fontFamily: 'Inter',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  activateButtonText: {
+    color: COLORS.onPrimary,
+  },
+  deactivateButtonText: {
+    color: COLORS.onSurfaceVariant,
+  },
+  deleteButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 16,
+    borderRadius: 28,
+    backgroundColor: COLORS.errorContainer,
   },
   deleteButtonText: {
+    fontFamily: 'Inter',
+    fontSize: 16,
+    fontWeight: '600',
     color: COLORS.error,
   },
 });
