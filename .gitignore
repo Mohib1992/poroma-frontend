@@ -42,3 +42,12 @@ ios/
 .cache/
 tmp/
 temp/
+
+# Documentation
+*.md
+!README.md
+!SETUP.md
+!CONTRIBUTING.md
+!DESIGN_REFERENCE.md
+!UI_COMPONENT_GUIDE.md
+!FRONTEND_DEVELOPMENT_INSTRUCTIONS.md
